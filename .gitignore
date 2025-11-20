@@ -11,3 +11,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# UV
+uv.lock
+
+# Claude Code
+CLAUDE.md
