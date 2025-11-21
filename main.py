@@ -103,4 +103,41 @@ class MCPChatbot:
                 
             except Exception as e:
                 print(f"❌ Error connecting to '{name}': {str(e)}")
+        
+                raise
+
+        async def discover_tools(self, server_name: str, session: ClientSession):
+            """
+            Discover and register tools from an MCP server
+            
+            Args:
+                server_name: Name of the server (e.g., "filesystem")
+                session: The MCP session for this server
+            """
+            print(f"🔍 Discovering tools from '{server_name}'...")
+            
+            try:
+                # Ask the server for its available tools
+                tools_list = await session.list_tools()
+                
+                # Process each tool
+                for tool in tools_list.tools:
+                    tool_name = tool.name
+                    
+                    # Map this tool to its server
+                    self.tool_to_session[tool_name] = server_name  # ← Populates mapping!
+                    
+                    # Add to available tools list (Claude API format)
+                    self.available_tools.append({  # ← Populates tools list!
+                        "name": tool_name,
+                        "description": tool.description,
+                        "input_schema": tool.inputSchema
+                    })
+                    
+                    print(f"  ✓ Registered tool: {tool_name}")
+                
+                print(f"✅ Discovered {len(tools_list.tools)} tool(s) from '{server_name}'")
+                
+            except Exception as e:
+                print(f"❌ Error discovering tools from '{server_name}': {str(e)}")
                 raise
