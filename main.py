@@ -42,3 +42,28 @@ class MCPChatbot:
         self.conversation_history: List[Dict[str, Any]] = []
         
         print("✅ MCPChatbot initialized!")
+
+        def load_server_config(self, config_path: str = "server_config.json") -> dict:
+            """
+            Load MCP server configuration from JSON file
+            
+            Args:
+                config_path: Path to the server config file
+                
+            Returns:
+                Dictionary with server configurations
+            """
+            try:
+                with open(config_path, 'r') as f:
+                    config = json.load(f)
+                    print(f"✅ Loaded configuration from {config_path}")
+                    print(f"📋 Found {len(config.get('mcpServers', {}))} server(s)")
+                    return config
+            except FileNotFoundError:
+                print(f"❌ Error: {config_path} not found!")
+                print("💡 Make sure server_config.json exists in the same directory")
+                raise
+            except json.JSONDecodeError as e:
+                print(f"❌ Error: Invalid JSON in {config_path}")
+                print(f"💡 {str(e)}")
+                raise
