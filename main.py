@@ -67,3 +67,40 @@ class MCPChatbot:
                 print(f"❌ Error: Invalid JSON in {config_path}")
                 print(f"💡 {str(e)}")
                 raise
+
+        async def connect_to_server(self, name: str, server_config: dict):
+            """
+            Connect to a single MCP server and discover its tools
+            
+            Args:
+                name: Server identifier (e.g., "filesystem", "fetch")
+                server_config: Server configuration from server_config.json
+            """
+            print(f"\n🔌 Connecting to '{name}' server...")
+        
+            try:
+                # Create server parameters from config
+                server_params = StdioServerParameters(
+                    command=server_config["command"],
+                    args=server_config["args"],
+                    env=server_config.get("env", None)  # Optional environment variables
+                )
+                
+                # Create stdio client and connect
+                stdio_transport = await stdio_client(server_params).__aenter__()
+                session = stdio_transport[1]  # Get the ClientSession
+                
+                # Store the session
+                self.sessions[name] = session
+                
+                # Initialize the session
+                await session.initialize()
+                
+                print(f"✅ Connected to '{name}' server")
+                
+                # Discover available tools from this server
+                await self.discover_tools(name, session)
+                
+            except Exception as e:
+                print(f"❌ Error connecting to '{name}': {str(e)}")
+                raise
