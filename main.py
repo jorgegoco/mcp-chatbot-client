@@ -141,3 +141,29 @@ class MCPChatbot:
             except Exception as e:
                 print(f"❌ Error discovering tools from '{server_name}': {str(e)}")
                 raise
+
+        async def setup(self):
+            """
+            Setup the chatbot by loading config and connecting to all servers
+            """
+            print("\n🚀 Setting up MCP Chatbot...")
+            print("=" * 50)
+            
+            # Load server configuration
+            config = self.load_server_config()
+            
+            # Get all server configurations
+            servers = config.get("mcpServers", {})
+            
+            if not servers:
+                print("⚠️  No servers found in configuration!")
+                return
+            
+            # Connect to each server
+            for server_name, server_config in servers.items():
+                await self.connect_to_server(server_name, server_config)
+            
+            print("\n" + "=" * 50)
+            print(f"✅ Setup complete! {len(self.available_tools)} total tools available")
+            print("=" * 50)
+        
