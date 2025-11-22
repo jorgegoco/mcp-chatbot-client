@@ -2,6 +2,7 @@ import asyncio
 import json
 import os
 from typing import Dict, List, Any
+from contextlib import AsyncExitStack
 
 # Environment variables
 from dotenv import load_dotenv
@@ -62,7 +63,7 @@ class MCPChatbot:
         
         response = self.anthropic.messages.create(
             max_tokens=4096,
-            model='claude-haiku-4-5-20251001',
+            model='claude-sonnet-4-20250514',
             tools=self.available_tools,
             messages=messages
         )
@@ -114,7 +115,7 @@ class MCPChatbot:
                     # Get Claude's next response
                     response = self.anthropic.messages.create(
                         max_tokens=4096,
-                        model='claude-haiku-4-5-20251001',
+                        model='claude-sonnet-4-20250514',
                         tools=self.available_tools,
                         messages=messages
                     )
@@ -183,7 +184,7 @@ class MCPChatbot:
     async def connect_to_servers_and_run(self):
         """
         Connect to all MCP servers and run the chat loop.
-        This keeps all connections alive during the chat session.
+        Uses AsyncExitStack for scalable management of multiple servers.
         """
         print("\n🚀 Setting up MCP Chatbot...")
         print("=" * 50)
@@ -196,67 +197,67 @@ class MCPChatbot:
             print("⚠️  No servers found in configuration!")
             return
         
-        # We need to keep all async context managers alive
-        # So we'll use nested async with statements
-        
-        # For 2 servers, we can nest them directly
-        # For more servers, we'd need a more dynamic approach
-        
-        server_names = list(servers.keys())
-        server_configs = list(servers.values())
-        
-        if len(servers) == 2:
-            # Connect to first server
-            print(f"\n🔌 Connecting to '{server_names[0]}' server...")
-            server_params_1 = StdioServerParameters(
-                command=server_configs[0]["command"],
-                args=server_configs[0]["args"],
-                env=server_configs[0].get("env", None)
-            )
-            
-            async with stdio_client(server_params_1) as (read1, write1):
-                async with ClientSession(read1, write1) as session1:
-                    await session1.initialize()
-                    self.sessions[server_names[0]] = session1
+        # Use AsyncExitStack to manage multiple contexts dynamically
+        async with AsyncExitStack() as stack:
+            # Connect to each server
+            for server_name, server_config in servers.items():
+                print(f"\n🔌 Connecting to '{server_name}' server...")
+                
+                try:
+                    # Create server parameters
+                    server_params = StdioServerParameters(
+                        command=server_config["command"],
+                        args=server_config["args"],
+                        env=server_config.get("env", None)
+                    )
                     
-                    # Discover tools from first server
-                    response1 = await session1.list_tools()
-                    for tool in response1.tools:
-                        self.tool_to_session[tool.name] = server_names[0]
+                    # Enter the stdio_client context and keep it in the stack
+                    read, write = await stack.enter_async_context(
+                        stdio_client(server_params)
+                    )
+                    
+                    # Enter the ClientSession context and keep it in the stack
+                    session = await stack.enter_async_context(
+                        ClientSession(read, write)
+                    )
+                    
+                    # Initialize the session
+                    await session.initialize()
+                    
+                    # Store the session
+                    self.sessions[server_name] = session
+                    
+                    # Discover tools from this server
+                    response = await session.list_tools()
+                    
+                    for tool in response.tools:
+                        self.tool_to_session[tool.name] = server_name
                         self.available_tools.append({
                             "name": tool.name,
                             "description": tool.description,
                             "input_schema": tool.inputSchema
                         })
-                    print(f"✅ Connected to '{server_names[0]}' with {len(response1.tools)} tool(s)")
                     
-                    # Connect to second server
-                    print(f"\n🔌 Connecting to '{server_names[1]}' server...")
-                    server_params_2 = StdioServerParameters(
-                        command=server_configs[1]["command"],
-                        args=server_configs[1]["args"],
-                        env=server_configs[1].get("env", None)
-                    )
+                    print(f"✅ Connected to '{server_name}' with {len(response.tools)} tool(s)")
                     
-                    async with stdio_client(server_params_2) as (read2, write2):
-                        async with ClientSession(read2, write2) as session2:
-                            await session2.initialize()
-                            self.sessions[server_names[1]] = session2
-                            
-                            # Discover tools from second server
-                            response2 = await session2.list_tools()
-                            for tool in response2.tools:
-                                self.tool_to_session[tool.name] = server_names[1]
-                                self.available_tools.append({
-                                    "name": tool.name,
-                                    "description": tool.description,
-                                    "input_schema": tool.inputSchema
-                                })
-                            print(f"✅ Connected to '{server_names[1]}' with {len(response2.tools)} tool(s)")
-                            
-                            print("\n" + "=" * 50)
-                            print(f"✅ Setup complete! {len(self.available_tools)} total tools available")
-                            print("=" * 50)
-                            
-                            # Run chat loop - sessions stay alive here!
-                            await self.chat_loop()
+                except Exception as e:
+                    print(f"❌ Error connecting to '{server_name}': {str(e)}")
+                    import traceback
+                    traceback.print_exc()
+                    # Continue with other servers even if one fails
+                    continue
+            
+            # Check if we have any connected servers
+            if not self.sessions:
+                print("\n❌ No servers connected successfully!")
+                return
+            
+            print("\n" + "=" * 50)
+            print(f"✅ Setup complete! {len(self.available_tools)} total tools available")
+            print("=" * 50)
+            
+            # Run chat loop - all contexts stay alive here!
+            await self.chat_loop()
+            
+            # When we exit this block, AsyncExitStack automatically closes
+            # all contexts in reverse order
