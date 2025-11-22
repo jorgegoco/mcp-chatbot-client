@@ -43,7 +43,7 @@ class MCPChatbot:
         
         print("✅ MCPChatbot initialized!")
 
-        def load_server_config(self, config_path: str = "server_config.json") -> dict:
+    def load_server_config(self, config_path: str = "server_config.json") -> dict:
             """
             Load MCP server configuration from JSON file
             
@@ -68,7 +68,7 @@ class MCPChatbot:
                 print(f"💡 {str(e)}")
                 raise
 
-        async def connect_to_server(self, name: str, server_config: dict):
+    async def connect_to_server(self, name: str, server_config: dict):
             """
             Connect to a single MCP server and discover its tools
             
@@ -106,7 +106,7 @@ class MCPChatbot:
         
                 raise
 
-        async def discover_tools(self, server_name: str, session: ClientSession):
+    async def discover_tools(self, server_name: str, session: ClientSession):
             """
             Discover and register tools from an MCP server
             
@@ -142,7 +142,7 @@ class MCPChatbot:
                 print(f"❌ Error discovering tools from '{server_name}': {str(e)}")
                 raise
 
-        async def setup(self):
+    async def setup(self):
             """
             Setup the chatbot by loading config and connecting to all servers
             """
@@ -166,4 +166,60 @@ class MCPChatbot:
             print("\n" + "=" * 50)
             print(f"✅ Setup complete! {len(self.available_tools)} total tools available")
             print("=" * 50)
+
+    async def execute_tool(self, tool_name: str, arguments: dict) -> str:
+        """
+        Execute a tool by calling the appropriate MCP server
+        
+        Args:
+            tool_name: Name of the tool to execute (e.g., "read_file")
+            arguments: Dictionary of arguments for the tool
+            
+        Returns:
+            Tool execution result as string
+        """
+        try:
+            # Find which server has this tool
+            server_name = self.tool_to_session.get(tool_name)
+            
+            if not server_name:
+                error_msg = f"❌ Tool '{tool_name}' not found in any connected server"
+                print(error_msg)
+                return error_msg
+            
+            # Get the session for this server
+            session = self.sessions.get(server_name)
+            
+            if not session:
+                error_msg = f"❌ Server '{server_name}' session not found"
+                print(error_msg)
+                return error_msg
+            
+            print(f"🔧 Executing tool '{tool_name}' on '{server_name}' server...")
+            print(f"   Arguments: {arguments}")
+            
+            # Execute the tool via MCP
+            result = await session.call_tool(tool_name, arguments)
+            
+            # Extract the content from the result
+            # MCP returns result in a specific format
+            if hasattr(result, 'content') and len(result.content) > 0:
+                # Get the first content item
+                content_item = result.content[0]
+                
+                # Check if it's text content
+                if hasattr(content_item, 'text'):
+                    tool_result = content_item.text
+                else:
+                    tool_result = str(content_item)
+            else:
+                tool_result = str(result)
+            
+            print(f"✅ Tool executed successfully")
+            return tool_result
+            
+        except Exception as e:
+            error_msg = f"❌ Error executing tool '{tool_name}': {str(e)}"
+            print(error_msg)
+            return error_msg
         
