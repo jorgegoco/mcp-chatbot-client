@@ -786,7 +786,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 It helps others discover the project and motivates continued development.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/mcp-chatbot-client&type=Date)](https://star-history.com/#yourusername/mcp-chatbot-client&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=jorgegoco/mcp-chatbot-client&type=Date)](https://star-history.com/#jorgegoco/mcp-chatbot-client&Date)
 
 </div>
 
@@ -796,12 +796,12 @@ It helps others discover the project and motivates continued development.
 
 <div align="center">
 
-| Channel            | Link                                                                                 |
-| ------------------ | ------------------------------------------------------------------------------------ |
-| 🐛 **Issues**      | [GitHub Issues](https://github.com/yourusername/mcp-chatbot-client/issues)           |
-| 💬 **Discussions** | [GitHub Discussions](https://github.com/yourusername/mcp-chatbot-client/discussions) |
-| 📧 **Email**       | your.email@example.com                                                               |
-| 🎓 **Course**      | [DeepLearning.AI](https://learn.deeplearning.ai)                                     |
+| Channel            | Link                                                                                                        |
+| ------------------ | ----------------------------------------------------------------------------------------------------------- |
+| 🐛 **Issues**      | [GitHub Issues](https://github.com/jorgegoco/mcp-chatbot-client/issues)                                     |
+| 💬 **Discussions** | [GitHub Discussions](https://github.com/jorgegoco/mcp-chatbot-client/discussions)                           |
+| 📧 **Email**       | jorgegoco70@gmail.com                                                                                       |
+| 🎓 **Course**      | [DeepLearning.AI](https://www.deeplearning.ai/short-courses/mcp-build-rich-context-ai-apps-with-anthropic/) |
 
 </div>
 
