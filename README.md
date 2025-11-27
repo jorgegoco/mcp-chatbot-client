@@ -796,12 +796,12 @@ It helps others discover the project and motivates continued development.
 
 <div align="center">
 
-| Channel            | Link                                                                                                        |
-| ------------------ | ----------------------------------------------------------------------------------------------------------- |
-| 🐛 **Issues**      | [GitHub Issues](https://github.com/jorgegoco/mcp-chatbot-client/issues)                                     |
-| 💬 **Discussions** | [GitHub Discussions](https://github.com/jorgegoco/mcp-chatbot-client/discussions)                           |
-| 📧 **Email**       | jorgegoco70@gmail.com                                                                                       |
-| 🎓 **Course**      | [DeepLearning.AI](https://www.deeplearning.ai/short-courses/mcp-build-rich-context-ai-apps-with-anthropic/) |
+| Channel            | Link                                                                                                                                       |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 🐛 **Issues**      | [GitHub Issues](https://github.com/jorgegoco/mcp-chatbot-client/issues)                                                                    |
+| 💬 **Discussions** | [GitHub Discussions](https://github.com/jorgegoco/mcp-chatbot-client/discussions)                                                          |
+| 📧 **Email**       | jorgegoco70@gmail.com                                                                                                                      |
+| 🎓 **Course**      | [MCP: Build Rich-Context AI Apps with Anthropic](https://www.deeplearning.ai/short-courses/mcp-build-rich-context-ai-apps-with-anthropic/) |
 
 </div>
 
