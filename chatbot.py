@@ -63,7 +63,19 @@ class MCPChatbot:
         
         response = self.anthropic.messages.create(
             max_tokens=4096,
-            model='claude-sonnet-4-20250514',
+            model='claude-haiku-4-5-20251001',
+            system="""You have persistent memory via knowledge graph tools.
+
+            RETRIEVAL:
+            - Use search_nodes(query="...") to find user info
+            - Never use read_graph or open_nodes
+
+            STORAGE:
+            - Use create_entities for people/projects
+            - Use create_relations to connect them
+            - Use add_observations for details
+
+            Natural conversation - don't announce memory operations.""",
             tools=self.available_tools,
             messages=messages
         )
@@ -115,7 +127,7 @@ class MCPChatbot:
                     # Get Claude's next response
                     response = self.anthropic.messages.create(
                         max_tokens=4096,
-                        model='claude-sonnet-4-20250514',
+                        model='claude-haiku-4-5-20251001',
                         tools=self.available_tools,
                         messages=messages
                     )
