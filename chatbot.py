@@ -34,7 +34,7 @@ class MCPChatbot:
         self.sessions: Dict[str, ClientSession] = {}
         
         # Map tool names to their server sessions
-        self.tool_to_session: Dict[str, str] = {}
+        self.tool_to_session: Dict[str, ClientSession] = {}
         
         # List of all available tools (formatted for Claude API)
         self.available_tools: List[Dict[str, Any]] = []
@@ -64,18 +64,6 @@ class MCPChatbot:
         response = self.anthropic.messages.create(
             max_tokens=4096,
             model='claude-haiku-4-5-20251001',
-            system="""You have persistent memory via knowledge graph tools.
-
-            RETRIEVAL:
-            - Use search_nodes(query="...") to find user info
-            - Never use read_graph or open_nodes
-
-            STORAGE:
-            - Use create_entities for people/projects
-            - Use create_relations to connect them
-            - Use add_observations for details
-
-            Natural conversation - don't announce memory operations.""",
             tools=self.available_tools,
             messages=messages
         )
@@ -103,12 +91,11 @@ class MCPChatbot:
                     print(f"\n🔧 Calling tool '{tool_name}' with args: {tool_args}")
                     
                     # Find which server has this tool
-                    server_name = self.tool_to_session.get(tool_name)
-                    if not server_name:
+                    session = self.tool_to_session.get(tool_name)
+                    if not session:
                         result_content = f"Error: Tool '{tool_name}' not found"
                     else:
                         # Get the session and call the tool
-                        session = self.sessions[server_name]
                         result = await session.call_tool(tool_name, arguments=tool_args)
                         result_content = result.content
                     
@@ -243,7 +230,7 @@ class MCPChatbot:
                     response = await session.list_tools()
                     
                     for tool in response.tools:
-                        self.tool_to_session[tool.name] = server_name
+                        self.tool_to_session[tool.name] = session
                         self.available_tools.append({
                             "name": tool.name,
                             "description": tool.description,

@@ -7,13 +7,6 @@
     "fetch": {
       "command": "uvx",
       "args": ["--quiet", "mcp-server-fetch"]
-    },
-    "memory": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "env": {
-        "MEMORY_FILE_PATH": "/home/jorge/projects/mcp-chatbot-client/memory.json"
-      }
     }
   }
 }
