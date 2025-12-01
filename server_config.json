@@ -7,6 +7,10 @@
     "fetch": {
       "command": "uvx",
       "args": ["--quiet", "mcp-server-fetch"]
+    },
+    "pdf-reader": {
+      "command": "uvx",
+      "args": ["mcp-pdf-reader"]
     }
   }
 }
